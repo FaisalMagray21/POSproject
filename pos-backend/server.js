@@ -25,24 +25,7 @@ connectDB();
 const app = express();
 
 // Middleware
-const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
-  .split(',')
-  .map(o => o.trim());
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    const isAllowed = allowedOrigins.includes(origin) || 
-      /^https:\/\/pos-system34.*\.vercel\.app$/.test(origin);
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS blocked: ${origin} not allowed`));
-    }
-  },
-  credentials: true
-}));
-
+app.use(cors({ origin: process.env.CLIENT_URL || "*", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== "production") {
