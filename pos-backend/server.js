@@ -24,8 +24,27 @@ connectDB();
 
 const app = express();
 
-// Middleware
-app.use(cors({ origin: process.env.CLIENT_URL || "*", credentials: true }));
+// Dynamic CORS: koi bhi po-sproject*.vercel.app URL + localhost allow karega
+app.use(cors({
+  origin: function (origin, callback) {
+    // Postman/curl jaise tools origin nahi bhejte
+    if (!origin) return callback(null, true);
+
+    const allowedPatterns = [
+      /^http:\/\/localhost:\d+$/,                    // koi bhi localhost port
+      /^https:\/\/po-sproject.*\.vercel\.app$/,       // koi bhi po-sproject* Vercel URL
+    ];
+
+    const isAllowed = allowedPatterns.some((pattern) => pattern.test(origin));
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked: ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== "production") {
